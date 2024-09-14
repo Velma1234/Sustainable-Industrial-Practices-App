@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>♻️ Sustain</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="grid-container">
+        <aside id="sidebar">
+            <h2>Menu</h2>
+            <ul>
+                <li><a href="#benchmarks">View Benchmarks</a></li>
+                <li><a href="#input-data">Input Data</a></li>
+                <li><a href="#track-performance">Track Performance</a></li>
+            </ul>
+        </aside>
+
+        <!-- Header -->
+        <header class="header">
+            <h1>DASHBOARD</h1>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-container">
+            <h2>Track Your Sustainability Performance</h2>
+
+            <!-- Chart Section -->
+            <div class="chart-container">
+                <h3>Performance Chart</h3>
+                <canvas id="sustainabilityChart"></canvas>
+            </div>
+
+            <!-- Table Section -->
+            <div class="table-container">
+                <h3>Benchmark Data</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Energy Consumption (kWh)</th>
+                            <th>Water Usage (m³)</th>
+                            <th>Carbon Footprint (tons CO²)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2023</td>
+                            <td>12000</td>
+                            <td>4500</td>
+                            <td>300</td>
+                        </tr>
+                        <tr>
+                            <td>2024</td>
+                            <td>11000</td>
+                            <td>4200</td>
+                            <td>280</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Input Data Section -->
+            <form id="input-data">
+                <label for="energy">Energy Consumption (kWh/year):</label>
+                <input type="number" id="energy" name="energy" placeholder="Enter energy usage" required>
+
+                <label for="water">Water Usage (m³/year):</label>
+                <input type="number" id="water" name="water" placeholder="Enter water usage" required>
+
+                <label for="carbon">Carbon Footprint (tons CO²/year):</label>
+                <input type="number" id="carbon" name="carbon" placeholder="Enter carbon footprint" required>
+
+                <label for="comments">Additional Comments:</label>
+                <textarea id="comments" name="comments" rows="4" placeholder="Add any relevant comments"></textarea>
+
+                <button type="submit">Submit Data</button>
+            </form>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initial data for the chart
+        const ctx = document.getElementById('sustainabilityChart').getContext('2d');
+        const sustainabilityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['2020', '2021', '2022', '2023', '2024'],
+                datasets: [{
+                    label: 'Energy Consumption (kWh)',
+                    data: [13000, 12500, 12000, 11500, 11000],
+                    borderColor: '#2891ba',
+                    fill: false
+                }, {
+                    label: 'Water Usage (m³)',
+                    data: [5000, 4800, 4500, 4300, 4200],
+                    borderColor: '#9A6735',
+                    fill: false
+                }, {
+                    label: 'Carbon Footprint (tons CO²)',
+                    data: [350, 320, 300, 290, 280],
+                    borderColor: '#94DEA5',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('input-data').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Get form data
+            const energy = parseFloat(document.getElementById('energy').value);
+            const water = parseFloat(document.getElementById('water').value);
+            const carbon = parseFloat(document.getElementById('carbon').value);
+
+            // Update chart with new data
+            sustainabilityChart.data.labels.push('2025'); // Add new year
+            sustainabilityChart.data.datasets[0].data.push(energy); // Update energy data
+            sustainabilityChart.data.datasets[1].data.push(water); // Update water data
+            sustainabilityChart.data.datasets[2].data.push(carbon); // Update carbon data
+            sustainabilityChart.update(); // Redraw the chart
+        });
+    </script>
+</body>
+</html>
