@@ -1,4 +1,4 @@
-    require("dotenv").config();
+require("dotenv").config();
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -8,18 +8,26 @@ const { check, validationResult } = require("express-validator");
 const path = require("path");
 const bcrypt = require("bcrypt");
 
-const app = express(); //initiating app
+// initiating app
+const app = express();
 
-// Session middleware
+// configuring middleware
+app.use(express.static(__dirname));
+app.use(express.json());
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// configuring session middleware
 app.use(
   session({
-    secret: "gftudvjhhjhhvg4875rcvvte44456t555dc",
+    secret: "hgfsfapPouqitfsrq54aoapo[p]f",
     resave: false,
     saveUninitialized: false,
   })
 );
 
-// Connecting to the database
+// creating connection to database
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -27,25 +35,29 @@ const connection = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
+// checking connection to db
 connection.connect((err) => {
   if (err) {
-    console.error("Error connecting to mySQL");
+    console.error("Error occurred while connecting to database" + err.stack);
+    return;
   }
-  console.log("Successfully connected to mysql");
+  console.log("Database server Successfully Connected");
 });
 
-// Serve static files
-app.use(express.static(__dirname));
+// defining registration form route
+app.get("/register", (request, response) => {
+  response.sendFile(path.join(__dirname, "index.html"));
+});
 
-// Middleware for handling incoming data
-app.use(express.json());
-app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded({ extended: true }));
+// login route
+app.get("/login", (request, response) => {
+  response.sendFile(path.join(__dirname, "login.html"));
+});
 
-// Define user model
+// defining user object registration
 const User = {
   tableName: "users",
+
   createUser: function (newUser, callback) {
     connection.query(
       "INSERT INTO " + this.tableName + " SET ?",
@@ -53,116 +65,117 @@ const User = {
       callback
     );
   },
-  getUserByEmail: function (email, callback) {
+
+  getUserByEmail: function (email) {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT * FROM " + this.tableName + " WHERE email = ?",
+        [email],
+        (err, result) => {
+          if (err) return reject(err);
+          resolve(result);
+        }
+      );
+    });
+  },
+
+  getUserByFirstname: function (firstname, callback) {
     connection.query(
-      "SELECT * FROM " + this.tableName + " WHERE email = ?",
-      [email],
+      "SELECT * FROM " + this.tableName + " WHERE firstname = ?",
+      firstname,
+      callback
+    );
+  },
+
+  getUserByLastname: function (lastname, callback) {
+    connection.query(
+      "SELECT * FROM " + this.tableName + " WHERE lastname = ?",
+      lastname,
       callback
     );
   },
 };
 
-// Registration route
-app.get("/register", (request, response) => {
-  response.sendFile(path.join(__dirname + "/index.html"));
-});
-
-// Handle user registration
+// defining registration route and logic
 app.post(
   "/register",
   [
-    check("email")
-      .isEmail()
-      .withMessage("Please provide a Valid Email Address!"),
+    check("email").isEmail().withMessage("Provide a valid Email address"),
     check("firstname")
       .isAlphanumeric()
-      .withMessage("Firstname must be alphanumeric"),
+      .withMessage("Invalid firstname, provide alphanumeric values"),
     check("lastname")
       .isAlphanumeric()
-      .withMessage("Lastname must be alphanumeric"),
-
-    // Uniqueness validation for email
+      .withMessage("Invalid lastname, provide alphanumeric values"),
     check("email").custom(async (value) => {
-      return new Promise((resolve, reject) => {
-        User.getUserByEmail(value, (err, results) => {
-          if (err) return reject(err);
-          if (results.length > 0)
-            return reject(new Error("Email already exists!"));
-          resolve();
-        });
-      });
+      const exist = await User.getUserByEmail(value);
+      if (exist.length > 0) {
+        throw new Error("User Already Exists");
+      }
     }),
   ],
-  async (req, res) => {
-    // Checking validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+  async (request, response) => {
+    // validation check
+    const error = validationResult(request);
+    if (!error.isEmpty()) {
+      return response.status(400).json({ error: error.array() });
     }
 
-    // Hashing password
+    // hashing password
     const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+    const hashedPassword = await bcrypt.hash(request.body.password, saltRounds);
 
-    // Creating new user object
+    // define a new user object
     const newUser = {
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      email: req.body.email,
+      firstname: request.body.firstname,
+      lastname: request.body.lastname,
+      email: request.body.email,
       password: hashedPassword,
     };
 
-    // Saving user to the database
-    User.createUser(newUser, (error, result, fields) => {
+    // saving new user
+    User.createUser(newUser, (error) => {
       if (error) {
-        console.error("Error inserting new User record: " + error.message);
-        return res.status(500).json({ error: error.message });
+        console.error(
+          "An error occurred while saving the record" + error.message
+        );
+        return response.status(500).json({ error: error.message });
       }
-      console.log("New User successfully created.");
-      res.status(201).json(newUser);
+      console.log("New user record saved");
+      response.status(202).send("Registration Successful");
+      
     });
   }
 );
 
-// Login route
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  // Check if the user exists by email
-  User.getUserByEmail(email, async (err, results) => {
-    if (err) {
-      console.error("Error fetching user: " + err.message);
-      return res.status(500).json({ error: "Internal Server Error" });
+// handling login form authentication
+app.post("/login", (request, response) => {
+  const { email, password } = request.body;
+  connection.query(
+    "SELECT * FROM users WHERE email = ?",
+    [email],
+    (err, result) => {
+      if (err) throw err;
+      if (result.length === 0) {
+        response.status(401).send("Invalid username or password");
+      } else {
+        const user = result[0];
+        // compare password
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+          if (err) throw err;
+          if (isMatch) {
+            request.session.user = user;
+            response.status(200).json({ message: "Login successful" });
+          } else {
+            response.status(401).send("Invalid username or password");
+          }
+        });
+      }
     }
-
-    // If no user is found
-    if (results.length === 0) {
-      return res.status(400).json({ error: "User not found!" });
-    }
-
-    const user = results[0];
-
-    // Validate password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(400).json({ error: "Invalid password!" });
-    }
-
-    // Return success response with firstname and lastname
-    res.status(200).json({
-      message: "Login successful",
-      user: {
-        email: user.email,
-        firstname: user.firstname,
-        lastname: user.lastname,
-      },
-    });
-  });
+  );
 });
 
-// Start server
+// start the server
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
-

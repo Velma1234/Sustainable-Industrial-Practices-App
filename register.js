@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
   const registrationForm = document.getElementById("registerform");
-  const authmsg = document.getElementById("authmsg"); // Assuming you have an element to display the authentication message.
 
   registrationForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -19,21 +18,24 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ firstname, lastname, email, password }),
       });
 
-      const data = await response.json();
+            if (response.ok) {
+              alert("Registration successful");
 
-      if (!response.ok) {
-        authmsg.textContent = data.message || "Registration failed";
-      } else {
-        authmsg.textContent = "Registration succesful ";
+              // Redirect to login after 1 second
+              console.log("Redirecting to login page");
+              setTimeout(() => {
+                window.location.href = "login.html";
+              }, 1000);
 
-        // Redirect to login after 1 second
-        console.log("Redirecting to login.html");
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 1000);
-      }
+            } else {
+              alert("Registration failed ");
+
+
+            }
+
+      
     } catch (err) {
-      authmsg.textContent = "An error occurred: " + err.message;
+      alert("An error occurred: " + err.message);
     }
   });
 });

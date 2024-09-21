@@ -1,7 +1,7 @@
 body{
-    display: block;
+    display: flex;
     margin: 0 auto;
-    padding: 70px;
+    padding: 10px;
     background-color:#fefe0c52 ;
     align-items: center;
 }
@@ -49,8 +49,8 @@ button:hover{
     box-shadow: 1px 3px 4px #a0570e;
 }
 .intro{
-    float:left;
-    padding: 50px;
+    
+    padding: 40px;
     align-items: center;
     width: 600px;
     height: 200px;
