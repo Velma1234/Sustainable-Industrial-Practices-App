@@ -1,73 +1,79 @@
 body{
-    display: flex;
-    margin: 0 auto;
-    padding: 10px;
-    background-color:#fefe0c52 ;
-    align-items: center;
+   display: block;
+   margin: 0 auto;
+   padding: 10px; 
+   font-family: Arial, Helvetica, sans-serif;
+   background-color: #e8e8141a;
+    
+}
+.video-background {
+    position: relative;
+    height: 100vh;
+    overflow: hidden; 
+     border-radius: 5px; 
+}
+
+.video-background video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1; 
+    transform: translate(-50%, -50%);
+    transition: opacity 1s ease-in-out;
+   
+}
+.intro{
+    padding-left: 10px;
+    background-color:#023D54 ;
+    width: 500px;
+    border-radius: 5px;
+    position: absolute;
+    top: 25%;
+    right: 60%;
+    color: #94DEA5;
+}
+h1{
+    text-align: center;
+    font-weight: bolder;
+    font-style: oblique;
 }
 .registerform{
-    float: right;
+    display: flex;
+    position: absolute;
+    top: 20%;
+    left: 60%;
+    max-width: fit-content;
     padding: 100px;
-    align-items: center;
-    background-color: #2891ba;
-    width: 300px;
-    height: 300px;
-    border: 1px #2891ba;
-    border-radius: 2vmax;
-    box-shadow: 4px 5px 7px #9A6735;
+    border-radius: 5px;
+    background-color:#94DEA5;
+    color: #023D54;
 }
 form{
-    
-    padding: 20px;
-    align-items: center;
-   
-
+    justify-content: center;
 }
 label{
-    font-weight: bold;
-    font-size: larger;
-    padding: 20px;
+    font-weight: bolder;
+    padding: 5px;
 }
 input{
-    padding: 10px;
     width: 250px;
+    height: 30px;
+    padding-top: 5px ;
+    border: none;
+    border-radius: 5px;
     
 }
 button{
     display: block;
     margin: 0 auto;
     padding: 10px;
-    border: 1px #130a01 ;
-    background-color: #a0570e;
+    border: none;
     border-radius: 5px;
-    color: #000507;
-    font-weight: bold;
-    font-size: larger;
-}
-button:hover{
-    background-color: #9A6735;
-    box-shadow: 1px 3px 4px #a0570e;
-}
-.intro{
-    
-    padding: 40px;
-    align-items: center;
-    width: 600px;
-    height: 200px;
-    position: top;
-    background-color: #1997c540;
-    border-radius: 2vmax;
-    box-shadow: 4px 5px 7px #9A6735;
-}
-h1{
-    text-align: center;
-    color: #042d3d;
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-    
-
-}
-p{
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: lighter;
-    color: #042d3d;
+    background-color: #023D54;
+    color: #94DEA5;
+    font-weight: bolder;
 }

@@ -7,6 +7,8 @@ const mysql = require("mysql2");
 const { check, validationResult } = require("express-validator");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const fs = require("fs");
+const { Parser } = require("json2csv"); 
 
 // initiating app
 const app = express();
@@ -174,6 +176,105 @@ app.post("/login", (request, response) => {
     }
   );
 });
+
+
+// Dashboard routes ( Benchmark Data,Track Progress, Set Goal, Report Generation)
+// Submit Benchmark Data
+app.post('/submit-benchmark', (req, res) => {
+    const { energyUsage, wasteProduction, waterUsage } = req.body;
+    const userId = req.session.user.id;
+
+    connection.query(
+        'INSERT INTO benchmarks (user_id, energy_usage, waste_production, water_usage) VALUES (?, ?, ?, ?)', 
+        [userId, energyUsage, wasteProduction, waterUsage], 
+        (err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error saving benchmark data.' });
+            }
+            res.json({ message: 'Benchmark data submitted successfully.' });
+        }
+    );
+});
+
+
+// Track Progress
+app.post('/track-progress', (req, res) => {
+    const { energy, waste } = req.body;
+    const userId = req.session.user.id;
+
+    connection.query(
+        'INSERT INTO tracking_data (user_id, energy, waste) VALUES (?, ?, ?)', 
+        [userId, energy, waste], 
+        (err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error saving tracking data.' });
+            }
+            res.json({ message: 'Tracking data submitted successfully.' });
+        }
+    );
+});
+
+// Set Goal
+app.post('/set-goal', (req, res) => {
+    const { goal } = req.body;
+    const userId = req.session.user.id;
+
+    connection.query(
+        'INSERT INTO goals (user_id, goal) VALUES (?, ?)', 
+        [userId, goal], 
+        (err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error saving goal.' });
+            }
+            res.json({ message: 'Goal set successfully.' });
+        }
+    );
+});
+
+
+
+// Generate Report
+app.get('/report/:userId', (req, res) => {
+    const userId = req.params.userId;
+
+    connection.query(
+        'SELECT * FROM tracking_data WHERE user_id = ?', 
+        [userId], 
+        (err, rows) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error fetching report.' });
+            }
+
+            // Convert data to CSV
+            const json2csvParser = new Parser();
+            const csv = json2csvParser.parse(rows);
+
+            // Define file path and name
+            const filePath = path.join(__dirname, 'reports', `report_${userId}.csv`);
+            
+            // Write CSV to a file
+            fs.writeFile(filePath, csv, (err) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Error generating report.' });
+                }
+
+                // Send the file to the user
+                res.download(filePath, `report_${userId}.csv`, (err) => {
+                    if (err) {
+                        console.error('Error sending file:', err);
+                    }
+                    // Optionally delete the file after sending
+                    fs.unlink(filePath, (err) => {
+                        if (err) console.error('Error deleting file:', err);
+                    });
+                });
+            });
+        }
+    );
+});
+
+
+
 
 // start the server
 app.listen(3000, () => {
