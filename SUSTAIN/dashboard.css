@@ -1,0 +1,156 @@
+ body {
+    background-color: #ffff663b;
+    padding-top: 0;
+    margin: 0; /* Added semicolon here */
+}
+
+h1, h2 {
+    text-align: center;
+    color: #023D54;
+    margin: 0;
+    padding: 0;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 205px 1fr 1fr 1fr;
+    grid-template-rows: 70px 1fr; /* Adjusted header row height */
+    grid-template-areas:
+        "sidebar header header header"
+        "sidebar main main main";
+    height: 100vh;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Header */
+.header {
+    grid-area: header;
+    background-color: #2891ba;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sidebar */
+#sidebar {
+    grid-area: sidebar;
+    background-color: #ffff66;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#sidebar h2 {
+    color: #023D54;
+}
+
+#sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#sidebar ul li {
+    padding: 10px 0;
+}
+
+#sidebar ul li a {
+    text-decoration: none;
+    color: #023D54;
+    font-weight: bold;
+}
+
+/* Main Section */
+.main-container {
+    grid-area: main;
+    background-color: #94DEA5;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-y: auto;
+}
+
+/* Chart Container */
+.chart-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table */
+.table-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+table th {
+    background-color: #2891ba;
+    color: white;
+}
+
+/* Form */
+form {
+    margin-top: 20px;
+}
+
+form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #023D54;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    margin-top: 20px;
+    padding: 10px 15px;
+    background-color: #9A6735;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #86512d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "header"
+            "main";
+    }
+
+    #sidebar {
+        display: none;
+    }
+
+    .main-container {
+        padding: 10px;
+    }
+}
