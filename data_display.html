@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Data Display</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="navBar">
+        <nav>
+            <ul>
+                <li><a href="index.html">Register</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="Dashboard.html">Dashboard</a></li>
+                <li><a href="data_display.html">View Data</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>User Data</h1>
+        </header>
+
+        <main class="main-content">
+            <section id="user-data">
+                <h2>Data Entered by User</h2>
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Energy Usage (kWh)</th>
+                            <th>Waste Production (kg)</th>
+                            <th>Water Usage (liters)</th>
+                            <th>Carbon Footprint Target</th>
+                            <th>Renewable Energy Target (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- User data will be populated here -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <div class="footer">
+            <footer>
+                <p>&copy; All rights reserved 2024 <br>Coded by Velma Atieno</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="data_display.js"></script>
+</body>
+</html>

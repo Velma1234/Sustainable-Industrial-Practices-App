@@ -178,17 +178,22 @@ app.post("/login", (request, response) => {
 });
 
 
-// Dashboard routes ( Benchmark Data,Track Progress, Set Goal, Report Generation)
+// Dashboard routes (Benchmark Data, Track Progress, Set Goal, Report Generation)
 // Submit Benchmark Data
 app.post('/submit-benchmark', (req, res) => {
     const { energyUsage, wasteProduction, waterUsage } = req.body;
-    const userId = req.session.user.id;
+    const userId = req.session.user ? req.session.user.id : null;
+
+    if (!userId) {
+        return res.status(400).json({ message: 'User not authenticated.' });
+    }
 
     connection.query(
-        'INSERT INTO benchmarks (user_id, energy_usage, waste_production, water_usage) VALUES (?, ?, ?, ?)', 
-        [userId, energyUsage, wasteProduction, waterUsage], 
+        'INSERT INTO benchmarks (user_id, energy_usage, waste_production, water_usage) VALUES (?, ?, ?, ?)',
+        [userId, energyUsage, wasteProduction, waterUsage],
         (err) => {
             if (err) {
+                console.error('Error saving benchmark data: ', err); // Log the error
                 return res.status(500).json({ message: 'Error saving benchmark data.' });
             }
             res.json({ message: 'Benchmark data submitted successfully.' });
@@ -196,17 +201,21 @@ app.post('/submit-benchmark', (req, res) => {
     );
 });
 
-
 // Track Progress
 app.post('/track-progress', (req, res) => {
     const { energy, waste } = req.body;
-    const userId = req.session.user.id;
+    const userId = req.session.user ? req.session.user.id : null;
+
+    if (!userId) {
+        return res.status(400).json({ message: 'User not authenticated.' });
+    }
 
     connection.query(
-        'INSERT INTO tracking_data (user_id, energy, waste) VALUES (?, ?, ?)', 
-        [userId, energy, waste], 
+        'INSERT INTO tracking_data (user_id, energy, waste) VALUES (?, ?, ?)',
+        [userId, energy, waste],
         (err) => {
             if (err) {
+                console.error('Error saving tracking data: ', err); // Log the error
                 return res.status(500).json({ message: 'Error saving tracking data.' });
             }
             res.json({ message: 'Tracking data submitted successfully.' });
@@ -216,14 +225,16 @@ app.post('/track-progress', (req, res) => {
 
 // Set Goal
 app.post('/set-goal', (req, res) => {
-    const { goal } = req.body;
+    const { carbon, renewable } = req.body; // Capture the values
     const userId = req.session.user.id;
 
+    // Ensure carbon and renewable have values before inserting
     connection.query(
-        'INSERT INTO goals (user_id, goal) VALUES (?, ?)', 
-        [userId, goal], 
+        'INSERT INTO goals (user_id, carbon, renewable) VALUES (?, ?, ?)', 
+        [userId, carbon || null, renewable || null], // Handle NULLs if values are not provided
         (err) => {
             if (err) {
+                console.error('Error saving goal:', err); // Log the error for debugging
                 return res.status(500).json({ message: 'Error saving goal.' });
             }
             res.json({ message: 'Goal set successfully.' });
@@ -232,48 +243,49 @@ app.post('/set-goal', (req, res) => {
 });
 
 
+app.get("/download", (req, res) => {
+  connection.query("SELECT * FROM goals", (err, results) => {
+    if (err) {
+      console.error("Error fetching data:", err);
+      return res.status(500).json({ message: "Error fetching data." });
+    }
 
-// Generate Report
-app.get('/report/:userId', (req, res) => {
-    const userId = req.params.userId;
+    // Check if results are empty
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No data available for download." });
+    }
 
-    connection.query(
-        'SELECT * FROM tracking_data WHERE user_id = ?', 
-        [userId], 
-        (err, rows) => {
-            if (err) {
-                return res.status(500).json({ message: 'Error fetching report.' });
-            }
+    // Convert data to CSV
+    const json2csv = require("json2csv").parse;
+    const csv = json2csv(results);
 
-            // Convert data to CSV
-            const json2csvParser = new Parser();
-            const csv = json2csvParser.parse(rows);
+    // Define file path and name
+    const filePath = path.join(__dirname, "downloads", `data.csv`); // Change this to your desired folder
 
-            // Define file path and name
-            const filePath = path.join(__dirname, 'reports', `report_${userId}.csv`);
-            
-            // Write CSV to a file
-            fs.writeFile(filePath, csv, (err) => {
-                if (err) {
-                    return res.status(500).json({ message: 'Error generating report.' });
-                }
+    // Write CSV to a file
+    fs.writeFile(filePath, csv, (err) => {
+      if (err) {
+        console.error("Error generating download file: ", err);
+        return res
+          .status(500)
+          .json({ message: "Error generating download file." });
+      }
 
-                // Send the file to the user
-                res.download(filePath, `report_${userId}.csv`, (err) => {
-                    if (err) {
-                        console.error('Error sending file:', err);
-                    }
-                    // Optionally delete the file after sending
-                    fs.unlink(filePath, (err) => {
-                        if (err) console.error('Error deleting file:', err);
-                    });
-                });
-            });
+      // Send the file to the user
+      res.download(filePath, "data.csv", (err) => {
+        if (err) {
+          console.error("Error sending file: ", err);
         }
-    );
+        // Optionally delete the file after sending
+        fs.unlink(filePath, (err) => {
+          if (err) console.error("Error deleting file: ", err);
+        });
+      });
+    });
+  });
 });
-
-
 
 
 // start the server

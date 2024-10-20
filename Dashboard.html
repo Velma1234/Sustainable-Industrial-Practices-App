@@ -14,6 +14,7 @@
             <li><a href="index.html">Register</a></li>
             <li><a href="login.html">Login</a></li>
             <li><a href="Dashboard.html">Dashboard</a></li>
+            <li><a href="data_display.html">View Data</a></li>
         </ul></nav>
 
     </div>
@@ -67,10 +68,13 @@
       <section id="goal-setting">
         <h2>Goal Setting</h2>
         <form id="goalForm">
+
           <label for="carbon">Carbon Footprint Reduction Target:</label>
           <input type="number" id="carbon" name="carbon"><br><br>
+
           <label for="renewable">Renewable Energy Target (%):</label>
           <input type="number" id="renewable" name="renewable"><br>
+          
           <button type="button" onclick="setGoals()">Set Goals</button>
         </form>
       </section>
