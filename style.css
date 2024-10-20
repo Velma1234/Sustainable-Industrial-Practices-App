@@ -6,6 +6,35 @@ body{
    background-color: #e8e8141a;
     
 }
+.navBar{
+background-color: #023d5442;
+border-radius: 0.5vmax;
+
+
+}
+.navBar ul {
+    padding: 20px;
+    list-style: none;
+    display: flex;
+    justify-content: flex-end;
+    
+}
+.navBar li{
+    padding: 10px;
+    color: #023D54;
+    font-weight: bolder;
+
+}
+.navBar a{
+    text-decoration: none;
+}
+.navBar a:hover{
+    background-color: #94DEA5;
+    padding: 10px;
+    border-radius: 0.5vmax;
+    transition: ease-in;
+    transition-duration: 0.5s ;
+}
 .video-background {
     position: relative;
     height: 100vh;
@@ -76,4 +105,18 @@ button{
     background-color: #023D54;
     color: #94DEA5;
     font-weight: bolder;
+}
+.footer{
+    padding-top: 4px;
+    padding: 10px;
+    align-content: center;
+    background-color: #023d541a;
+}
+.footer p{
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-variant: inherit;
+}
+footer{
+     color: #023D54;
 }
